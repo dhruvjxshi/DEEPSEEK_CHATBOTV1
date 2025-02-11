@@ -13,35 +13,36 @@ app.use(express.json());
 app.use(express.static('public'));
 
 app.post('/api/chat-stream', async (req, res) =>{
-    try {
-        const { prompt } = req.body;
+  try {
+    const { prompt } = req.body;
 
-        const stream = await ollama.chat({
-            model: 'deepseek-r1:7b',
-            messages : [{role: 'user', content: prompt}],
-            stream: true
-        });
+    const stream = await ollama.chat({
+        model: 'deepseek-r1:7b',
+        messages : [{role: 'user', content: prompt}],
+        stream: true
+    });
 
-        res.setHeader('Content-type', 'text/plain');
+    res.setHeader('Content-type', 'text/plain');
 
-        for await (const chunk of stream){
+    for await (const chunk of stream){
             //console.log(chunk.message)
-            try {
-                if(chunk.message?.content){
-                    res.write(chunk.message.content)
-                }
-            } catch (streamError) {
-                console.error(`Error:`, streamError);
-                break;
+        try {
+            if(chunk.message?.content){
+                res.write(chunk.message.content)
             }
+        } catch (streamError) {
+            console.error('Error:', streamError);
+            break;
         }
-
-        res.end();
-
-    } catch (error) {
-
     }
+    res.end();
+    
+  } catch (error) {
+    res.status(500).json(error);
+  }
 });
+
+
 app.listen(PORT, () =>{
     console.log(`Running on port ${PORT}`);
 });
