@@ -31,6 +31,18 @@ async function sendMessage(){
             signal: abortController.signal
         });
 
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while(isGenerating){
+            const { done, value } = await reader.read();
+            if(done) break;
+
+            boxDiv.textContent += decoder.decode(value);
+            chatbox.scrollTop = chatBox.scrollHeight;
+
+        }
+
         const botDiv = document.createElement('div');
         botDiv.className = 'bot-message';
         botDiv.textContent = 'AI: ';
